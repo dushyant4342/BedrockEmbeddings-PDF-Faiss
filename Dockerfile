@@ -18,6 +18,10 @@ COPY . .
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install FAISS for CPU
+RUN pip install faiss-cpu
+
+
 # Expose the Streamlit default port
 EXPOSE 8501
 

@@ -14,7 +14,7 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 
 ## AWS Bedrock Clients
-bedrock = boto3.client(service_name="bedrock-runtime")
+bedrock = boto3.client(service_name="bedrock-runtime",  region_name="ap-south-1")
 bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0", client=bedrock)
 
 # Default resume path

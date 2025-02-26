@@ -8,9 +8,10 @@ ENV LANG=C.UTF-8 \
 
 # Install dependencies
 RUN yum update -y && \
-    yum install -y python3 python3-pip && \
-    python3 -m pip install --upgrade --force-reinstall pip
-
+    yum install -y python3 curl && \
+    curl -sS https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    python3 get-pip.py && \
+    rm -f get-pip.py
 # Set working directory inside the container
 WORKDIR /app
 

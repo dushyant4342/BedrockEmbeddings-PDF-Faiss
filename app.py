@@ -76,16 +76,18 @@ def main():
     st.title("💬 Chat with the Candidate or 📂 Upload a Document")  
     st.write("Upload a document for summarization, classification, or any other analysis. ✨ By default, this provides a summary of the candidate’s skills, achievements, work experience, and education. 🎯")  
 
+    get_vector_store(recreate=True)
+    
     ## Sidebar: Upload New Resume
     with st.sidebar:
-        st.title("Upload a Resume")
+        st.title("Make summary of another document")
         uploaded_file = st.file_uploader("Upload a PDF", type="pdf")
 
         if uploaded_file is not None:
             temp_path = f"data/{uploaded_file.name}"
             with open(temp_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
-            st.success("Resume uploaded successfully! Using this for Q&A.")
+            st.success("Uploaded successfully! Using this for Q&A.")
             docs = process_pdf(temp_path)
             get_vector_store(docs, recreate=True)
         else:

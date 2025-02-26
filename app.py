@@ -45,7 +45,7 @@ def get_llama3_llm():
 
 ## Prompt Template
 prompt_template = """
-Human: Use the following context to answer the question concisely and in detail (min 100 words). Try to reply as good as possible don't answer like from the context. Talk naturally and be nice.
+Human: Use the following context to answer the question concisely and in detail (min 100 words). Try to reply as good as possible don't answer like from the context. Talk naturally and be nice. If you don't find answer in the document try to think and then respond with good answers for any possible question could be anything realted to geography, Maths, Code debugging etc.
 
 <context>
 {context}

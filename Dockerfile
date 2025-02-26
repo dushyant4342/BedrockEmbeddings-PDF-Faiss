@@ -1,29 +1,31 @@
-# Use Amazon Linux 2023 as base image
+# Use Amazon Linux 2023 as the base image
 FROM amazonlinux:2023
 
-# Set working directory
-WORKDIR /app
-
-# Install Python 3.9 and pip
-RUN yum update -y && \
-    yum install -y python3 python3-pip && \
-    ln -sf /usr/bin/python3 /usr/bin/python && \ 
-    ln -sf /usr/bin/pip3 /usr/bin/pip  
-
-# (ln -s symbolic link which can run pip install instead of pip3 install.)
-
-# Copy files from GitHub repo
-COPY . .
+# Set environment variables
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    PYTHONUNBUFFERED=1
 
 # Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN yum update -y && \
+    yum install -y python3 python3-pip && \
+    pip3 install --upgrade pip
 
-# Install FAISS for CPU
-RUN pip install faiss-cpu
+# Set working directory inside the container
+WORKDIR /app
 
+# Copy only requirements.txt first (so Docker caches dependencies)
+COPY requirements.txt .
 
-# Expose the Streamlit default port
+# Install Python dependencies first (cached layer)
+RUN pip3 install --no-cache-dir -r requirements.txt && \
+    pip3 install --no-cache-dir faiss-cpu
+
+# Copy the rest of the application files
+COPY . .
+
+# Expose Streamlit default port
 EXPOSE 8501
 
-# Run the Streamlit app
+# Command to run the application
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]

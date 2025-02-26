@@ -45,7 +45,7 @@ def get_llama3_llm():
 
 ## Prompt Template
 prompt_template = """
-Human: Use the following context to answer the question concisely and in detail (min 100 words). If you don't know, say so.
+Human: Use the following context to answer the question concisely and in detail (min 100 words).
 
 <context>
 {context}
@@ -72,10 +72,9 @@ def get_response_llm(llm, vectorstore_faiss, query):
 
 ## **Streamlit App**
 def main():
-    st.set_page_config("Resume Q&A", layout="wide")
-
-    st.title("Chat with My Resume 📄🤖")
-    st.write("Ask any questions based on the resume!")
+    st.set_page_config("📄 PDF Vector Embedding", layout="wide")  
+    st.title("💬 Chat with the Candidate or 📂 Upload a Document")  
+    st.write("Upload a document for summarization, classification, or any other analysis. ✨ By default, this provides a summary of the candidate’s skills, achievements, work experience, and education. 🎯")  
 
     ## Sidebar: Upload New Resume
     with st.sidebar:

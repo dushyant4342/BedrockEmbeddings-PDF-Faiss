@@ -45,7 +45,7 @@ def get_llama3_llm():
 
 ## Prompt Template
 prompt_template = """
-Human: Use the following context to answer the question concisely and in detail (min 100 words).
+Human: Use the following context to answer the question concisely and in detail (min 100 words). Try to reply as good as possible don't answer like from the context. Talk naturally and be nice.
 
 <context>
 {context}
@@ -73,8 +73,8 @@ def get_response_llm(llm, vectorstore_faiss, query):
 ## **Streamlit App**
 def main():
     st.set_page_config("📄 PDF Vector Embedding", layout="wide")  
-    st.title("💬 Chat with the Candidate or 📂 Upload a Document")  
-    st.write("Upload a document for summarization, classification, or any other analysis. ✨ By default, this provides a summary of the candidate’s skills, achievements, work experience, and education. 🎯")  
+    st.title("💬 Chat with Dushyant or 📂 Upload a Document")  
+    st.write("Upload a document for summarization, classification, or any other analysis. ✨ By default, this provides a summary of the Dushyant’s skills, achievements, work experience, education etc.")  
 
     get_vector_store(recreate=True)
     

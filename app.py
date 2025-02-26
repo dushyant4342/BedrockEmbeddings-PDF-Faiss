@@ -2,8 +2,8 @@ import os
 import streamlit as st
 import boto3
 from langchain_community.embeddings import BedrockEmbeddings
-from langchain.llms.bedrock import Bedrock
-from langchain.vectorstores import FAISS
+from langchain_community.llms import Bedrock
+from langchain_community.vectorstores import FAISS
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.chains import RetrievalQA

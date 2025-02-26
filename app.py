@@ -1,145 +1,105 @@
+import json
 import os
-import streamlit as st
+import sys
 import boto3
+import streamlit as st
+
+## LangChain imports
 from langchain_community.embeddings import BedrockEmbeddings
-from langchain_community.llms import Bedrock
-from langchain_community.vectorstores import FAISS
+from langchain.llms.bedrock import Bedrock
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
+from langchain.vectorstores import FAISS
 from langchain.chains import RetrievalQA
+from langchain.prompts import PromptTemplate
 
-# Set page configuration
-st.set_page_config(page_title="Career Q&A Bot", page_icon="📄", layout="wide")
-
-# Custom CSS for better visibility
-st.markdown(
-    """
-    <style>
-        .stTextInput>div>div>input {
-            font-size: 1.2rem;
-            padding: 10px;
-        }
-        .stChatMessage {
-            font-size: 1.2rem;
-        }
-        .bot-message {
-            background-color: #f3f4f6;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-        .user-message {
-            background-color: #e3f2fd;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-# Initialize session state
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-
-# AWS Bedrock Client
-@st.cache_resource
-def get_bedrock_client():
-    return boto3.client(service_name="bedrock-runtime", region_name="ap-south-1")
-
-bedrock = get_bedrock_client()
+## AWS Bedrock Clients
+#bedrock = boto3.client(service_name="bedrock-runtime")
+bedrock = boto3.client(service_name="bedrock-runtime",  region_name="ap-south-1")
 bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0", client=bedrock)
 
-# Paths
-DATA_DIR = "./data/"
-DEFAULT_PDF = "DushyantResume.pdf"
-PDF_PATH = os.path.join(DATA_DIR, DEFAULT_PDF)
-INDEX_PATH = os.path.join(DATA_DIR, "faiss_index")
+# Default resume path
+DEFAULT_RESUME_PATH = "data/DushyantResume.pdf"
+VECTOR_STORE_PATH = "faiss_index"
 
-os.makedirs(DATA_DIR, exist_ok=True)
-
-# Load PDF & Generate FAISS Index
-@st.cache_resource
-def process_and_store_pdf(pdf_path):
+## Load PDF, Split Text, and Generate Embeddings
+def process_pdf(pdf_path):
     loader = PyPDFLoader(pdf_path)
     documents = loader.load()
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=10000, chunk_overlap=1000)
     docs = text_splitter.split_documents(documents)
-    
-    if not docs:
-        st.error("No valid text found in PDF.")
-        return None
-    
-    vectorstore_faiss = FAISS.from_documents(docs, bedrock_embeddings)
-    vectorstore_faiss.save_local(INDEX_PATH)
-    return vectorstore_faiss
+    return docs
 
-@st.cache_resource
-def get_vector_store():
-    if os.path.exists(INDEX_PATH):
-        return FAISS.load_local(INDEX_PATH, bedrock_embeddings, allow_dangerous_deserialization=True)
-    return process_and_store_pdf(PDF_PATH)
+## Create or Load FAISS Vector Store
+def get_vector_store(docs=None, recreate=False):
+    if not os.path.exists(VECTOR_STORE_PATH) or recreate:
+        if docs is None:
+            docs = process_pdf(DEFAULT_RESUME_PATH)
+        vectorstore_faiss = FAISS.from_documents(docs, bedrock_embeddings)
+        vectorstore_faiss.save_local(VECTOR_STORE_PATH)
+    return FAISS.load_local(VECTOR_STORE_PATH, bedrock_embeddings, allow_dangerous_deserialization=True)
 
-# Load LLM
-@st.cache_resource
-def get_llm():
-    return Bedrock(
-        model_id="meta.llama3-8b-instruct-v1:0", 
-        client=bedrock, 
-        region_name="ap-south-1",
-        model_kwargs={'max_gen_len': 512, 'temperature': 0.7}
+## Load Llama3 Model
+def get_llama3_llm():
+    return Bedrock(model_id="meta.llama3-8b-instruct-v1:0", client=bedrock, model_kwargs={'max_gen_len': 512})
+
+## Prompt Template
+prompt_template = """
+Human: Use the following context to answer the question concisely and in detail (min 100 words). If you don't know, say so.
+
+<context>
+{context}
+</context>
+
+Question: {question}
+
+Assistant:
+"""
+
+PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
+
+## Get Response from LLM
+def get_response_llm(llm, vectorstore_faiss, query):
+    qa = RetrievalQA.from_chain_type(
+        llm=llm,
+        chain_type="stuff",
+        retriever=vectorstore_faiss.as_retriever(search_type="similarity", search_kwargs={"k": 3}),
+        return_source_documents=True,
+        chain_type_kwargs={"prompt": PROMPT}
     )
+    answer = qa({"query": query})
+    return answer['result']
 
-llm = get_llm()
-faiss_index = get_vector_store()
+## **Streamlit App**
+def main():
+    st.set_page_config("Resume Q&A", layout="wide")
 
-def get_response(query):
-    if not faiss_index:
-        return "Error: No document index found. Please upload a document."
-    
-    retriever = faiss_index.as_retriever(search_kwargs={"k": 3})
-    qa_chain = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
-    
-    try:
-        response = qa_chain.invoke({"query": query})
-        return response.get('result', "Error generating response.")
-    except Exception as e:
-        return f"Error: {str(e)}"
+    st.title("Chat with My Resume 📄🤖")
+    st.write("Ask any questions based on the resume!")
 
-def clear_chat():
-    st.session_state.chat_history = []
+    ## Sidebar: Upload New Resume
+    with st.sidebar:
+        st.title("Upload a Resume")
+        uploaded_file = st.file_uploader("Upload a PDF", type="pdf")
 
-# Sidebar
-with st.sidebar:
-    st.header("📂 Document Upload")
-    uploaded_file = st.file_uploader("Upload a PDF document", type="pdf")
-    
-    if uploaded_file:
-        uploaded_pdf_path = os.path.join(DATA_DIR, uploaded_file.name)
-        with open(uploaded_pdf_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        st.success(f"Uploaded {uploaded_file.name}")
-        process_and_store_pdf(uploaded_pdf_path)
-        faiss_index = get_vector_store()
-    
-    if st.button("🗑️ Clear Chat History"):
-        clear_chat()
-        st.success("Chat history cleared!")
+        if uploaded_file is not None:
+            temp_path = f"data/{uploaded_file.name}"
+            with open(temp_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+            st.success("Resume uploaded successfully! Using this for Q&A.")
+            docs = process_pdf(temp_path)
+            get_vector_store(docs, recreate=True)
+        else:
+            get_vector_store()  # Load default resume
 
-# Main UI
-st.title("💼 Career Document Assistant")
-st.markdown("Ask questions about the uploaded document.")
+    ## User Query
+    user_question = st.text_input("Ask a question:")
+    if user_question:
+        with st.spinner("Thinking..."):
+            faiss_index = get_vector_store()
+            llm = get_llama3_llm()
+            response = get_response_llm(llm, faiss_index, user_question)
+            st.write(response)
 
-# Display chat history
-for question, answer in st.session_state.chat_history:
-    st.markdown(f'<div class="user-message">🧑‍💼 <b>You:</b> {question}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="bot-message">🤖 <b>Assistant:</b> {answer}</div>', unsafe_allow_html=True)
-
-# User input
-user_question = st.text_input("Ask a question:", key="user_input")
-
-if user_question.strip():
-    response = get_response(user_question)
-    st.session_state.chat_history.append((user_question, response))
-    st.rerun()
+if __name__ == "__main__":
+    main()

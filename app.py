@@ -14,11 +14,11 @@ bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0", 
 # Persistent Storage Path on EC2 (Outside Docker)
 STORAGE_PATH = "/home/ec2-user/data/"
 
-PDF_PATH = os.path.join(STORAGE_PATH, "DushyantResume.pdf")  # Default resume file
-INDEX_PATH = "/home/ec2-user/data/faiss_index"
-
 # Ensure directories exist
 os.makedirs(STORAGE_PATH, exist_ok=True)
+
+PDF_PATH = os.path.join(STORAGE_PATH, "DushyantResume.pdf")  # Default resume file
+INDEX_PATH = os.path.join(STORAGE_PATH, "faiss_index")  # FAISS Index Path
 
 
 # **Load PDF & Generate FAISS Index**

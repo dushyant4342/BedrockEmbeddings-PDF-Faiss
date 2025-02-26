@@ -1,15 +1,10 @@
-import json
 import os
-import boto3
 import streamlit as st
-import datetime
+import boto3
 from langchain_community.embeddings import BedrockEmbeddings
 from langchain.llms.bedrock import Bedrock
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain.vectorstores import FAISS
-from langchain.prompts import PromptTemplate
-from langchain.chains import RetrievalQA
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
 
 # AWS Bedrock Client
@@ -18,8 +13,9 @@ bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0", 
 
 # Persistent Storage Path on EC2 (Outside Docker)
 STORAGE_PATH = "/home/ec2-user/data/"
-PDF_PATH = os.path.join(STORAGE_PATH, "resume.pdf")  # Default resume file
-INDEX_PATH = os.path.join(STORAGE_PATH, "faiss_index")
+
+PDF_PATH = os.path.join(STORAGE_PATH, "DushyantResume.pdf")  # Default resume file
+INDEX_PATH = "/home/ec2-user/data/faiss_index"
 
 # Ensure directories exist
 os.makedirs(STORAGE_PATH, exist_ok=True)

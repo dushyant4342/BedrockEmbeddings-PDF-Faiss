@@ -12,7 +12,7 @@ bedrock = boto3.client(service_name="bedrock-runtime", region_name="us-east-1") 
 bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0", client=bedrock)
 
 # Persistent Storage Path on EC2 (Outside Docker)
-STORAGE_PATH = "/home/ec2-user/data/"
+STORAGE_PATH = "/home/ec2-user/BedrockEmbeddings-PDF-Faiss/data/"
 
 # Ensure directories exist
 os.makedirs(STORAGE_PATH, exist_ok=True)

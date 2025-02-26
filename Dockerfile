@@ -8,17 +8,17 @@ WORKDIR /app
 RUN yum update -y && \
     yum install -y python3 python3-pip && \
     ln -sf /usr/bin/python3 /usr/bin/python && \ 
-    ln -sf /usr/bin/pip3 /usr/bin/pip  
+    ln -sf /usr/bin/pip3 /usr/bin/pip
 
-# (ln -s symbolic link which can run pip install instead of pip3 install.)
-
-# Copy files from GitHub repo
-COPY . .
+# ONLY copy requirements first (not all files)
+COPY requirements.txt .
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-
 #RUN pip install faiss-cpu
+
+# Now copy the rest of the application
+COPY . .
 
 # Expose the Streamlit default port
 EXPOSE 8501

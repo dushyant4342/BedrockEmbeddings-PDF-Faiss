@@ -9,7 +9,7 @@ ENV LANG=C.UTF-8 \
 # Install dependencies
 RUN yum update -y && \
     yum install -y python3 python3-pip && \
-    pip3 install --upgrade pip
+    python3 -m pip install --upgrade --force-reinstall pip
 
 # Set working directory inside the container
 WORKDIR /app

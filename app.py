@@ -76,7 +76,7 @@ def get_response_llm(llm, vectorstore_faiss, query):
     answer = qa({"query": query})
     return answer['result']
 
-## Custom CSS for black theme
+## Custom CSS for enhanced UI
 def apply_custom_css():
     st.markdown("""
     <style>
@@ -182,9 +182,9 @@ def apply_custom_css():
     </style>
     """, unsafe_allow_html=True)
 
-## Streamlit App with Improved UI
+## Streamlit App with Enhanced UI
 def main():
-    st.set_page_config("🤖 AI Document Chat", layout="wide")  
+    st.set_page_config("AI Document Chat", layout="wide")  
     apply_custom_css()
 
     st.title("🤖 Ask Anything or 📂 Upload a Document")

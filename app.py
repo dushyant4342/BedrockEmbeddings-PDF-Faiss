@@ -236,11 +236,11 @@ def main():
     with st.form("chat_form", clear_on_submit=False):
         st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
         user_question = st.text_area("💬 Ask any question:", 
-                                   height=120,
+                                   height=150,
                                    placeholder="Type your question here.... Ex. What skills are mentioned?")
         
         # Add a custom submit button
-        submit_button = st.form_submit_button("Send ↵", use_container_width=False)
+        submit_button = st.form_submit_button("Enter ▶️", use_container_width=False)
         st.markdown('</div>', unsafe_allow_html=True)
         
         if submit_button and user_question:

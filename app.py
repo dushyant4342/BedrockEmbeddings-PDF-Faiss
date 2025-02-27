@@ -195,7 +195,7 @@ def main():
 
     ## User Query with improved UI
     st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
-    user_question = st.text_input("💬 Ask any question about the document:", placeholder="E.g., What are the key skills mentioned?")
+    user_question = st.text_input("💬 Enter a prompt here:", placeholder="E.g., What are the key skills mentioned?")
     if user_question:
         with st.spinner("🧠 Thinking..."):
             faiss_index = get_vector_store()

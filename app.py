@@ -246,7 +246,8 @@ def main():
         st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
         user_question = st.text_area("💬 Ask any question:", 
                                    height=40,
-                                   placeholder="Type your question here.... Ex. What skills are mentioned?")
+                                    placeholder="Type your question here.... Ex. What skills are mentioned?",
+                                  key="user_question_input") # Add a unique key here
         
         # Add a custom submit button
         submit_button = st.form_submit_button("Enter", use_container_width=False)

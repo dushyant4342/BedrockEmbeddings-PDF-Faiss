@@ -194,8 +194,24 @@ def main():
             get_vector_store()
 
     ## User Query with improved UI
-    st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
-    user_question = st.text_input("💬 Enter a prompt here:", placeholder="E.g., What are the key skills mentioned?")
+    st.markdown("""
+                <style>
+                .stTextArea textarea {
+                    background-color: #2D2D2D;
+                    color: white;
+                    border-color: #444444;
+                    border-radius: 10px;
+                    padding: 10px;
+                    height: 100px;
+                    max-width: 800px;
+                    font-size: 16px;
+                }
+                </style>
+                """, unsafe_allow_html=True)
+    
+    user_question = st.text_area("💬 Ask any question:", 
+                            placeholder="E.g., What are the key skills mentioned? You can type multiple lines here...", 
+                            height=100)
     if user_question:
         with st.spinner("🧠 Thinking..."):
             faiss_index = get_vector_store()

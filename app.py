@@ -257,7 +257,7 @@ def main():
             <script>
                 document.getElementById('response-area').innerHTML = `{response.replace("`", "\\`")}`;
             </script>
-            """, ) unsafe_allow_html=True)
+           """, unsafe_allow_html=True)
             st.rerun()
 
 if __name__ == "__main__":

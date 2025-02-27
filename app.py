@@ -154,8 +154,8 @@ def apply_custom_css():
         border-radius: 10px;
         padding: 10px;
         font-size: 16px;
-        width: 80% !important;
-        max-width: 800px !important;
+        width: 100% !important;
+        max-width: 1200px !important;
         box-sizing: border-box;
         min-height: 120px;
         line-height: 1.5;
@@ -245,7 +245,7 @@ def main():
     with st.form("chat_form", clear_on_submit=False):
         st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
         user_question = st.text_area("💬 Ask any question:", 
-                                   height=40,
+                                   height=60,
                                     placeholder="Type your question here.... Ex. What skills are mentioned?",
                                   key="user_question_input") # Add a unique key here
         

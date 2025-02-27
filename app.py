@@ -53,7 +53,7 @@ Human: You are a helpful AI assistant that provides detailed and natural-soundin
 Question: {question}
 
 Please follow these guidelines in your response:
-1. Be conversational and engaging, avoid phrases like "based on the context" or "according to the document"
+1. Be conversational and engaging, avoid phrases like "based on the context" or "according to the document" and also avoid word "context" while answering
 2. Provide detailed, thorough answers (at least 100-150 words when appropriate)
 3. Include specific information from the context when relevant
 4. If the question cannot be answered from the context, draw on your general knowledge to provide a helpful response
@@ -154,8 +154,8 @@ def apply_custom_css():
         border-radius: 10px;
         padding: 10px;
         font-size: 16px;
-        width: 100% !important;
-        max-width: 1200px !important;
+        width: 80% !important;
+        max-width: 800px !important;
         box-sizing: border-box;
         min-height: 120px;
         line-height: 1.5;
@@ -245,7 +245,7 @@ def main():
     with st.form("chat_form", clear_on_submit=False):
         st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
         user_question = st.text_area("💬 Ask any question:", 
-                                   height=80,
+                                   height=40,
                                    placeholder="Type your question here.... Ex. What skills are mentioned?")
         
         # Add a custom submit button

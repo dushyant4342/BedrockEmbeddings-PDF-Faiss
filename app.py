@@ -30,13 +30,33 @@ def process_pdf(pdf_path):
     return docs
 
 ## Create or Load FAISS Vector Store
+# def get_vector_store(docs=None, recreate=False):
+#     if not os.path.exists(VECTOR_STORE_PATH) or recreate:
+#         if docs is None:
+#             docs = process_pdf(DEFAULT_RESUME_PATH)
+#         vectorstore_faiss = FAISS.from_documents(docs, bedrock_embeddings)
+#         vectorstore_faiss.save_local(VECTOR_STORE_PATH)
+#     return FAISS.load_local(VECTOR_STORE_PATH, bedrock_embeddings, allow_dangerous_deserialization=True)
+
 def get_vector_store(docs=None, recreate=False):
     if not os.path.exists(VECTOR_STORE_PATH) or recreate:
         if docs is None:
             docs = process_pdf(DEFAULT_RESUME_PATH)
-        vectorstore_faiss = FAISS.from_documents(docs, bedrock_embeddings)
-        vectorstore_faiss.save_local(VECTOR_STORE_PATH)
+        
+        # Error handling for empty documents
+        if not docs:
+            st.error("No documents found. Please upload a valid PDF.")
+            return None
+
+        try:
+            vectorstore_faiss = FAISS.from_documents(docs, bedrock_embeddings)
+            vectorstore_faiss.save_local(VECTOR_STORE_PATH)
+        except Exception as e:
+            st.error(f"Error generating embeddings: {e}")
+            return None
+
     return FAISS.load_local(VECTOR_STORE_PATH, bedrock_embeddings, allow_dangerous_deserialization=True)
+
 
 ## Load Llama3 Model
 def get_llama3_llm():

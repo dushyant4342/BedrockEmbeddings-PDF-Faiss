@@ -245,7 +245,7 @@ def main():
     with st.form("chat_form", clear_on_submit=False):
         st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
         user_question = st.text_area("💬 Ask any question:", 
-                                   height=60,
+                                   height=72,
                                     placeholder="Type your question here.... Ex. What skills are mentioned?",
                                   key="user_question_input") # Add a unique key here
         

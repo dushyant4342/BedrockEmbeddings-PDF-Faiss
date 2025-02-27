@@ -39,3 +39,9 @@ Replace yourdomain.com with your actual domain and run:
 sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 sudo certbot --nginx -d interactivepdf.com -d www.interactivepdf.com
 sudo certbot --nginx -d pdfgeniusai.com -d www.pdfgeniusai.com
+
+
+
+docker rm $(docker ps -a -q) # remove all stopped container
+
+docker rmi -f $(docker images -q) #Delete all docker images

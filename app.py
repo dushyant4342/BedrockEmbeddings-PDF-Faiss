@@ -149,6 +149,10 @@ def apply_custom_css():
 def main():
     st.set_page_config("🤖 AI Document Chat", layout="wide")  
     apply_custom_css()
+
+    st.title("🤖 Ask Anything or 📂 Upload a Document")
+    st.write("Chat with AI about anything or upload your own PDF for analysis✨ By default, the web app provides information about Dushyant's professional profile, skills, and experiences.")
+
     
     # Custom Header
     st.markdown("""

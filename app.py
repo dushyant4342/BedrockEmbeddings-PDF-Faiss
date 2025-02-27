@@ -117,6 +117,11 @@ def apply_custom_css():
         font-size: 0.8em;
         width: 300px;
         line-height: 1.5;
+        background-color: rgba(18, 18, 18, 0.7);
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 1000;
+        border-left: 2px solid #4CAF50;
     }
     .main-header {
         display: flex;
@@ -142,6 +147,38 @@ def apply_custom_css():
         padding: 20px;
         margin-top: 20px;
     }
+    .stTextArea textarea {
+        background-color: #2D2D2D;
+        color: white;
+        border-color: #444444;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 16px;
+        width: 100% !important;
+        max-width: 1200px !important;
+        box-sizing: border-box;
+        min-height: 120px;
+        line-height: 1.5;
+    }
+    .submit-button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 10px;
+        transition: background-color 0.3s;
+    }
+    .submit-button:hover {
+        background-color: #45a049;
+    }
+    .chat-input-container {
+        display: flex;
+        flex-direction: column;
+        max-width: 1200px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -151,39 +188,19 @@ def main():
     apply_custom_css()
 
     st.title("🤖 Ask Anything or 📂 Upload a Document")
-    st.write("Chat with AI about anything or upload your own PDF for analysis✨ By default, the web app provides information about Dushyant's professional profile, skills, and experiences.")
-
+    st.write("Chat with AI about anything or upload your own PDF for analysis. ✨ By default, the web app provides information about Dushyant's professional profile, skills, and experiences.")
     
     # Custom Header
     st.markdown("""
     <div class="main-header">
         <div>
-            <div class="header-text"> How can I assist you today?</div>
+            <div class="header-text">How can I assist you today?</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
     
-    # Model Attribution Footer
-
-    # Update the footer CSS and markdown to ensure it's always visible at the bottom left
+    # Model Attribution Footer - Always visible at bottom left
     st.markdown("""
-    <style>
-    .footer-text {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        color: #888888;
-        font-size: 0.8em;
-        width: 300px;
-        line-height: 1.5;
-        background-color: rgba(18, 18, 18, 0.7);
-        padding: 10px;
-        border-radius: 5px;
-        z-index: 1000;
-        border-left: 2px solid #4CAF50;
-    }
-    </style>
-    
     <div class="footer-text">
         Powered by:<br>
         Amazon Titan Embedding Model<br>
@@ -192,6 +209,7 @@ def main():
         © 2025 All Rights Reserved
     </div>
     """, unsafe_allow_html=True)
+    
     # Initialize vector store
     get_vector_store(recreate=True)
     
@@ -208,34 +226,30 @@ def main():
             docs = process_pdf(temp_path)
             get_vector_store(docs, recreate=True)
         else:
-            st.markdown("<p style='color: #BBBBBB;'>Using default resume</p>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #BBBBBB;'>Using default document</p>", unsafe_allow_html=True)
             get_vector_store()
 
-    ## User Query with improved UI
-    st.markdown("""
-                <style>
-                .stTextArea textarea {
-                    background-color: #2D2D2D;
-                    color: white;
-                    border-color: #444444;
-                    border-radius: 10px;
-                    padding: 10px;
-                    height: 100px;
-                    max-width: 800px;
-                    font-size: 16px;
-                }
-                </style>
-                """, unsafe_allow_html=True)
+    ## User Query with improved UI and Enter button
+    st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
     
-    user_question = st.text_area("💬 Ask any question:", 
-                            placeholder="E.g., What are the key skills mentioned? You can type multiple lines here...", 
-                            height=100)
-    if user_question:
-        with st.spinner("🧠 Thinking..."):
-            faiss_index = get_vector_store()
-            llm = get_llama3_llm()
-            response = get_response_llm(llm, faiss_index, user_question)
-            st.markdown(f"<div style='background-color: #2D2D2D; padding: 15px; border-radius: 10px; border-left: 3px solid #4CAF50;'>{response}</div>", unsafe_allow_html=True)
+    # Create a form for the text input and submit button
+    with st.form("chat_form", clear_on_submit=False):
+        st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
+        user_question = st.text_area("💬 Ask any question:", 
+                                   height=120,
+                                   placeholder="Type your question here... You can type multiple lines and use the full width of this text area.")
+        
+        # Add a custom submit button
+        submit_button = st.form_submit_button("Send ↵", use_container_width=False)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        if submit_button and user_question:
+            with st.spinner("🧠 Thinking..."):
+                faiss_index = get_vector_store()
+                llm = get_llama3_llm()
+                response = get_response_llm(llm, faiss_index, user_question)
+                st.markdown(f"<div style='background-color: #2D2D2D; padding: 15px; border-radius: 10px; border-left: 3px solid #4CAF50;'>{response}</div>", unsafe_allow_html=True)
+    
     st.markdown("</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":

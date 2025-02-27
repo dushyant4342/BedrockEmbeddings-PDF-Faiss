@@ -237,7 +237,7 @@ def main():
         st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
         user_question = st.text_area("💬 Ask any question:", 
                                    height=120,
-                                   placeholder="Type your question here... You can type multiple lines and use the full width of this text area.")
+                                   placeholder="Type your question here.... Ex. What skills are mentioned?")
         
         # Add a custom submit button
         submit_button = st.form_submit_button("Send ↵", use_container_width=False)

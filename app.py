@@ -247,17 +247,18 @@ def main():
 
     # Streamlit component to receive query from JavaScript
     user_question = st.text_area("", key="query_input", height=0, label_visibility="hidden")
-
-    if user_question:
+    
+    if user_question:    
         with st.spinner("Thinking..."):
             faiss_index = get_vector_store()
             llm = get_llama3_llm()
             response = get_response_llm(llm, faiss_index, user_question)
+            response_escaped = response.replace("`", r"\`")
             st.markdown(f"""
             <script>
-                document.getElementById('response-area').innerHTML = `{response.replace("`", "\\`")}`;
+                document.getElementById('response-area').innerHTML = `{response_escaped}`;
             </script>
-           """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
             st.rerun()
 
 if __name__ == "__main__":

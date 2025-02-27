@@ -179,6 +179,15 @@ def apply_custom_css():
         flex-direction: column;
         max-width: 1200px;
     }
+    .upload-section {
+        margin-bottom: 20px;
+    }
+    .powered-by-section {
+        margin-top: 20px;
+        color: #888888;
+        font-size: 0.8em;
+        line-height: 1.5;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -196,17 +205,6 @@ def main():
         <div>
             <div class="header-text">How can I assist you today?</div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Model Attribution Footer - Always visible at bottom left
-    st.markdown("""
-    <div class="footer-text">
-        Powered by:<br>
-        Amazon Titan Embedding Model<br>
-        Meta Llama3 Text Generation<br>
-        Hosted on AWS EC2 Instance<br>
-        © 2025 All Rights Reserved
     </div>
     """, unsafe_allow_html=True)
     
@@ -229,6 +227,17 @@ def main():
             st.markdown("<p style='color: #BBBBBB;'> If no document is uploaded, the web app responds from Dushyant's cover letter.</p>", unsafe_allow_html=True)
             get_vector_store()
 
+        # Powered by section below the upload section
+        st.markdown("""
+        <div class="powered-by-section">
+            Powered by:<br>
+            Amazon Titan Embedding Model<br>
+            Meta Llama3 Text Generation<br>
+            Hosted on AWS EC2 Instance<br>
+            © 2025 All Rights Reserved
+        </div>
+        """, unsafe_allow_html=True)
+
     ## User Query with improved UI and Enter button
     st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
     
@@ -240,7 +249,7 @@ def main():
                                    placeholder="Type your question here.... Ex. What skills are mentioned?")
         
         # Add a custom submit button
-        submit_button = st.form_submit_button("Enter", use_container_width=False)
+        submit_button = st.form_submit_button("Enter ▶️", use_container_width=False)
         st.markdown('</div>', unsafe_allow_html=True)
         
         if submit_button and user_question:

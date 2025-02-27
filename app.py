@@ -40,7 +40,7 @@ def get_vector_store(docs=None, recreate=False):
 
 ## Load Llama3 Model
 def get_llama3_llm():
-    return Bedrock(model_id="meta.llama3-8b-instruct-v1:0", client=bedrock, model_kwargs={'max_gen_len': 5012})
+    return Bedrock(model_id="meta.llama3-8b-instruct-v1:0", client=bedrock, model_kwargs={'max_gen_len': 512})
 
 ## Improved Prompt Template
 prompt_template = """

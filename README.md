@@ -6,8 +6,9 @@ When starting Docker, mount the EC2 folder inside the container:
 
 
 
-# docker build -t dushyant1334/titanembedpdf2text:latest .
-# docker run -v /home/ec2-user/BedrockEmbeddings-PDF-Faiss/data:/app/data -p 8501:8501 -e AWS_ACCESS_KEY_ID="" -e  AWS_SECRET_ACCESS_KEY="" -e  AWS_REGION="ap-south-1" dushyant1334/titanembedpdf2text:latest
+docker build -t dushyant1334/titanembedpdf2text:latest .
+
+docker run -v /home/ec2-user/BedrockEmbeddings-PDF-Faiss/data:/app/data -p 8501:8501 -e AWS_ACCESS_KEY_ID="" -e  AWS_SECRET_ACCESS_KEY="" -e  AWS_REGION="ap-south-1" dushyant1334/titanembedpdf2text:latest
 
 This mounts your EC2 folder inside the container as /app/data.
 
@@ -15,7 +16,7 @@ This ensures /home/ec2-user/BedrockEmbeddings-PDF-Faiss/data/ in EC2 is mapped i
 
 #When you run your Docker container, the faiss_index and data folders are stored inside the container's filesystem, not directly on the EC2 #instance.
 
-# Next Steps
+#Next Steps
 AWS Load Balancer for high traffic
 Set up HTTPS with Nginx for security - Buy Domain from Godaddy, allow www. from security groups.
 Autoscale with ECS instead of EC2 if needed

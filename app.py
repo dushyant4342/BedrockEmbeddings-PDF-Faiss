@@ -14,8 +14,7 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 
 ## AWS Bedrock Clients
-#bedrock = boto3.client(service_name="bedrock-runtime")
-bedrock = boto3.client(service_name="bedrock-runtime",  region_name="ap-south-1")
+bedrock = boto3.client(service_name="bedrock-runtime", region_name="ap-south-1")
 bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0", client=bedrock)
 
 # Default resume path
@@ -43,9 +42,9 @@ def get_vector_store(docs=None, recreate=False):
 def get_llama3_llm():
     return Bedrock(model_id="meta.llama3-8b-instruct-v1:0", client=bedrock, model_kwargs={'max_gen_len': 512})
 
-## Prompt Template
+## Improved Prompt Template
 prompt_template = """
-Human: Use the following context to answer the question concisely and in detail (min 100 words). Try to reply as good as possible don't answer like from the context. Talk naturally and be nice. If you don't find answer in the document try to think and then respond with good answers for any possible question could be anything realted to geography, Maths, Code debugging etc.
+Human: You are a helpful AI assistant that provides detailed and natural-sounding responses based on any asked question or the document context provided.
 
 <context>
 {context}
@@ -53,7 +52,14 @@ Human: Use the following context to answer the question concisely and in detail 
 
 Question: {question}
 
-Assistant:
+Please follow these guidelines in your response:
+1. Be conversational and engaging, avoid phrases like "based on the context" or "according to the document"
+2. Provide detailed, thorough answers (at least 100-150 words when appropriate)
+3. Include specific information from the context when relevant
+4. If the question cannot be answered from the context, draw on your general knowledge to provide a helpful response
+5. Format your response clearly with proper paragraphing and try to make answers as per your knowledge about anything like space, travel itinerary, maths, code debug anything
+
+A:
 """
 
 PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
@@ -70,17 +76,107 @@ def get_response_llm(llm, vectorstore_faiss, query):
     answer = qa({"query": query})
     return answer['result']
 
-## **Streamlit App**
-def main():
-    st.set_page_config("📄 PDF Vector Embedding", layout="wide")  
-    st.title("💬 Chat with Dushyant or 📂 Upload a Document")  
-    st.write("Upload a document for summarization, classification, or any other analysis. ✨ By default, this provides a summary of the Dushyant’s skills, achievements, work experience, education etc.")  
+## Custom CSS for black theme
+def apply_custom_css():
+    st.markdown("""
+    <style>
+    .stApp {
+        background-color: #121212;
+        color: #FFFFFF;
+    }
+    .stTextInput > div > div > input {
+        background-color: #2D2D2D;
+        color: white;
+        border-color: #444444;
+    }
+    .stTextInput > label {
+        color: #BBBBBB !important;
+    }
+    .stSidebar {
+        background-color: #1E1E1E;
+    }
+    .stSidebar .stFileUploader > div {
+        background-color: #2D2D2D;
+    }
+    .stButton > button {
+        background-color: #4B4B4B;
+        color: white;
+    }
+    .stButton > button:hover {
+        background-color: #606060;
+    }
+    .stTitle {
+        font-weight: bold;
+        color: #E0E0E0;
+    }
+    .footer-text {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        color: #888888;
+        font-size: 0.8em;
+        width: 300px;
+        line-height: 1.5;
+    }
+    .main-header {
+        display: flex;
+        align-items: center;
+        background: linear-gradient(90deg, #1A1A1A, #303030);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border-left: 5px solid #4CAF50;
+    }
+    .header-text {
+        color: #FFFFFF;
+        font-size: 1.8em;
+        font-weight: bold;
+    }
+    .subheader-text {
+        color: #BBBBBB;
+        margin-top: 5px;
+    }
+    .chat-container {
+        background-color: #1E1E1E;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
+## Streamlit App with Improved UI
+def main():
+    st.set_page_config("🤖 AI Document Chat", layout="wide")  
+    apply_custom_css()
+    
+    # Custom Header
+    st.markdown("""
+    <div class="main-header">
+        <div>
+            <div class="header-text">🤖 Ask Me Anything</div>
+            <div class="subheader-text">or 📂 Upload a Document to analyze</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Model Attribution Footer
+    st.markdown("""
+    <div class="footer-text">
+        Powered by:<br>
+        Amazon Titan Embedding Model<br>
+        Meta Llama3 Text Generation<br>
+        Hosted on AWS EC2 Instance<br>
+        © 2025 All Rights Reserved
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Initialize vector store
     get_vector_store(recreate=True)
     
-    ## Sidebar: Upload New Resume
+    ## Sidebar: Upload New Resume with improved styling
     with st.sidebar:
-        st.title("Make summary of another document")
+        st.markdown("<h2 style='color: #E0E0E0;'>📄 Document Analysis</h2>", unsafe_allow_html=True)
         uploaded_file = st.file_uploader("Upload a PDF", type="pdf")
 
         if uploaded_file is not None:
@@ -91,16 +187,19 @@ def main():
             docs = process_pdf(temp_path)
             get_vector_store(docs, recreate=True)
         else:
-            get_vector_store()  # Load default resume
+            st.markdown("<p style='color: #BBBBBB;'>Using default resume</p>", unsafe_allow_html=True)
+            get_vector_store()
 
-    ## User Query
-    user_question = st.text_input("Ask a question:")
+    ## User Query with improved UI
+    st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
+    user_question = st.text_input("💬 Ask any question about the document:", placeholder="E.g., What are the key skills mentioned?")
     if user_question:
-        with st.spinner("Thinking..."):
+        with st.spinner("🧠 Thinking..."):
             faiss_index = get_vector_store()
             llm = get_llama3_llm()
             response = get_response_llm(llm, faiss_index, user_question)
-            st.write(response)
+            st.markdown(f"<div style='background-color: #2D2D2D; padding: 15px; border-radius: 10px; border-left: 3px solid #4CAF50;'>{response}</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()

@@ -158,8 +158,7 @@ def main():
     st.markdown("""
     <div class="main-header">
         <div>
-            <div class="header-text">🤖 Ask Me Anything</div>
-            <div class="subheader-text">or 📂 Upload a Document to analyze</div>
+            <div class="header-text"> How can I help you today? 😊</div>
         </div>
     </div>
     """, unsafe_allow_html=True)

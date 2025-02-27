@@ -81,79 +81,106 @@ def apply_custom_css():
     st.markdown("""
     <style>
     .stApp {
-        background: linear-gradient(135deg, #121212, #1E1E1E);
+        background-color: #121212;
         color: #FFFFFF;
     }
-    .stTextInput > div > div > input, .stTextArea textarea {
+    .stTextInput > div > div > input {
+        background-color: #2D2D2D;
+        color: white;
+        border-color: #444444;
+    }
+    .stTextInput > label {
+        color: #BBBBBB !important;
+    }
+    .stSidebar {
+        background-color: #1E1E1E;
+    }
+    .stSidebar .stFileUploader > div {
+        background-color: #2D2D2D;
+    }
+    .stButton > button {
+        background-color: #4B4B4B;
+        color: white;
+    }
+    .stButton > button:hover {
+        background-color: #606060;
+    }
+    .stTitle {
+        font-weight: bold;
+        color: #E0E0E0;
+    }
+    .footer-text {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        color: #888888;
+        font-size: 0.8em;
+        width: 300px;
+        line-height: 1.5;
+        background-color: rgba(18, 18, 18, 0.7);
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 1000;
+        border-left: 2px solid #4CAF50;
+    }
+    .main-header {
+        display: flex;
+        align-items: center;
+        background: linear-gradient(90deg, #1A1A1A, #303030);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border-left: 5px solid #4CAF50;
+    }
+    .header-text {
+        color: #FFFFFF;
+        font-size: 1.8em;
+        font-weight: bold;
+    }
+    .subheader-text {
+        color: #BBBBBB;
+        margin-top: 5px;
+    }
+    .chat-container {
+        background-color: #1E1E1E;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    .stTextArea textarea {
         background-color: #2D2D2D;
         color: white;
         border-color: #444444;
         border-radius: 10px;
         padding: 10px;
         font-size: 16px;
+        width: 100% !important;
+        max-width: 1200px !important;
+        box-sizing: border-box;
+        min-height: 120px;
+        line-height: 1.5;
     }
-    .stTextInput > label, .stTextArea > label {
-        color: #BBBBBB !important;
-    }
-    .stSidebar {
-        background: linear-gradient(135deg, #1E1E1E, #2D2D2D);
-    }
-    .stSidebar .stFileUploader > div {
-        background-color: #3A3A3A;
-    }
-    .stButton > button {
-        background: linear-gradient(90deg, #4CAF50, #388E3C);
+    .submit-button {
+        background-color: #4CAF50;
         color: white;
+        padding: 10px 20px;
         border: none;
         border-radius: 5px;
-        padding: 10px 20px;
+        cursor: pointer;
         font-weight: bold;
+        margin-top: 10px;
+        transition: background-color 0.3s;
     }
-    .stButton > button:hover {
-        background: linear-gradient(90deg, #45A049, #368033);
-    }
-    .stTitle {
-        font-weight: bold;
-        color: #E0E0E0;
-    }
-    .chat-container {
-        background-color: rgba(30, 30, 30, 0.8);
-        border-radius: 15px;
-        padding: 30px;
-        margin-top: 30px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    .submit-button:hover {
+        background-color: #45a049;
     }
     .chat-input-container {
         display: flex;
         flex-direction: column;
-    }
-    .submit-button {
-        background: linear-gradient(90deg, #4CAF50, #388E3C);
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 12px 25px;
-        font-weight: bold;
-        align-self: flex-end;
-    }
-    .submit-button:hover {
-        background: linear-gradient(90deg, #45A049, #368033);
-    }
-    .response-box {
-        background-color: #2D2D2D;
-        padding: 20px;
-        border-radius: 10px;
-        border-left: 5px solid #4CAF50;
-        margin-top: 20px;
+        max-width: 1200px;
     }
     .upload-section {
-        background-color: rgba(45, 45, 45, 0.8);
-        border-radius: 10px;
-        padding: 20px;
         margin-bottom: 20px;
-    }
-    .upload-section h3 {
-        color: #E0E0E0;
     }
     .powered-by-section {
         margin-top: 20px;
@@ -164,15 +191,27 @@ def apply_custom_css():
     </style>
     """, unsafe_allow_html=True)
 
-
 ## Streamlit App with Enhanced UI
 def main():
-    st.set_page_config("AI Document Chat", layout="wide")
+    st.set_page_config("AI Document Chat", layout="wide")  
     apply_custom_css()
 
-    st.title("🤖 Amazon Titan-Inspired AI Assistant")
-    st.write("Ask me anything or upload a document! ✨")
-
+    st.title("🤖 Ask Anything or 📂 Upload a Document")
+    st.write("Chat with AI about anything or upload your own PDF for analysis. ✨ By default, the web app provides information about Dushyant's professional profile, skills, and experiences.")
+    
+    # Custom Header
+    st.markdown("""
+    <div class="main-header">
+        <div>
+            <div class="header-text">How can I assist you today?</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Initialize vector store
+    get_vector_store(recreate=True)
+    
+    ## Sidebar: Upload New Resume with improved styling
     with st.sidebar:
         st.markdown("<h2 style='color: #E0E0E0;'>📄 Document Analysis</h2>", unsafe_allow_html=True)
         uploaded_file = st.file_uploader("Upload a PDF", type="pdf")
@@ -185,9 +224,10 @@ def main():
             docs = process_pdf(temp_path)
             get_vector_store(docs, recreate=True)
         else:
-            st.markdown("<p style='color: #BBBBBB;'>Using default document.</p>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #BBBBBB;'> If no document is uploaded, the web app responds from Dushyant's cover letter.</p>", unsafe_allow_html=True)
             get_vector_store()
 
+        # Powered by section below the upload section
         st.markdown("""
         <div class="powered-by-section">
             Powered by:<br>
@@ -198,68 +238,28 @@ def main():
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown("""
-    <div class="chat-container">
-        <div class="chat-input-container">
-            <div class="upload-section">
-                <h3>Upload Document</h3>
-                <p>Upload a PDF to analyze its content.</p>
-                <div style="display: none;">
-                    <input type="file" id="file-upload" accept=".pdf">
-                </div>
-                <label for="file-upload" style="cursor: pointer; background: linear-gradient(90deg, #4CAF50, #388E3C); color: white; padding: 10px 20px; border-radius: 5px; display: inline-block;">Choose File</label>
-            </div>
-            <div class="chat-input-area">
-                <textarea id="user-input" placeholder="Type your question here..." style="width: 100%; min-height: 150px; background-color: #2D2D2D; color: white; border: 1px solid #444444; border-radius: 10px; padding: 10px; font-size: 16px;"></textarea>
-                <button class="submit-button" onclick="submitQuery()">Submit</button>
-            </div>
-        </div>
-        <div id="response-area" class="response-box" style="display: none;"></div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <script>
-    function submitQuery() {
-        var userInput = document.getElementById('user-input').value;
-        if (userInput) {
-            document.getElementById('response-area').style.display = 'block';
-            document.getElementById('response-area').innerHTML = '<p>Thinking...</p>'; // Placeholder while processing
-            sendQueryToStreamlit(userInput);
-        }
-    }
-
-    function sendQueryToStreamlit(query) {
-        // Use Streamlit's session state to send the query
-        Streamlit.setComponentValue(query);
-    }
-
-    document.getElementById('file-upload').addEventListener('change', function(event) {
-        var file = event.target.files[0];
-        if (file) {
-            // Handle file upload logic here (e.g., using st.file_uploader)
-            // For now, just show the file name
-            alert('File selected: ' + file.name);
-        }
-    });
-    </script>
-    """, unsafe_allow_html=True)
-
-    # Streamlit component to receive query from JavaScript
-    user_question = st.text_area("", key="query_input", height=0, label_visibility="hidden")
+    ## User Query with improved UI and Enter button
+    st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
     
-    if user_question:    
-        with st.spinner("Thinking..."):
-            faiss_index = get_vector_store()
-            llm = get_llama3_llm()
-            response = get_response_llm(llm, faiss_index, user_question)
-            response_escaped = response.replace("`", r"\`")
-            st.markdown(f"""
-            <script>
-                document.getElementById('response-area').innerHTML = `{response_escaped}`;
-            </script>
-            """, unsafe_allow_html=True)
-            st.rerun()
+    # Create a form for the text input and submit button
+    with st.form("chat_form", clear_on_submit=False):
+        st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
+        user_question = st.text_area("💬 Ask any question:", 
+                                   height=150,
+                                   placeholder="Type your question here.... Ex. What skills are mentioned?")
+        
+        # Add a custom submit button
+        submit_button = st.form_submit_button("Enter", use_container_width=False)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        if submit_button and user_question:
+            with st.spinner("🧠 Thinking..."):
+                faiss_index = get_vector_store()
+                llm = get_llama3_llm()
+                response = get_response_llm(llm, faiss_index, user_question)
+                st.markdown(f"<div style='background-color: #2D2D2D; padding: 15px; border-radius: 10px; border-left: 3px solid #4CAF50;'>{response}</div>", unsafe_allow_html=True)
+    
+    st.markdown("</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()

@@ -158,13 +158,32 @@ def main():
     st.markdown("""
     <div class="main-header">
         <div>
-            <div class="header-text"> How can I help you today? 😊</div>
+            <div class="header-text"> How can I assist you today?</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
     
     # Model Attribution Footer
+
+    # Update the footer CSS and markdown to ensure it's always visible at the bottom left
     st.markdown("""
+    <style>
+    .footer-text {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        color: #888888;
+        font-size: 0.8em;
+        width: 300px;
+        line-height: 1.5;
+        background-color: rgba(18, 18, 18, 0.7);
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 1000;
+        border-left: 2px solid #4CAF50;
+    }
+    </style>
+    
     <div class="footer-text">
         Powered by:<br>
         Amazon Titan Embedding Model<br>
@@ -173,7 +192,6 @@ def main():
         © 2025 All Rights Reserved
     </div>
     """, unsafe_allow_html=True)
-
     # Initialize vector store
     get_vector_store(recreate=True)
     

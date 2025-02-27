@@ -226,7 +226,7 @@ def main():
             docs = process_pdf(temp_path)
             get_vector_store(docs, recreate=True)
         else:
-            st.markdown("<p style='color: #BBBBBB;'>Using default document</p>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #BBBBBB;'> If no document is uploaded, the web app responds from Dushyant's cover letter.</p>", unsafe_allow_html=True)
             get_vector_store()
 
     ## User Query with improved UI and Enter button

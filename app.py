@@ -3,6 +3,7 @@ import os
 import sys
 import boto3
 import streamlit as st
+import base64
 
 ## LangChain imports
 from langchain_community.embeddings import BedrockEmbeddings
@@ -30,14 +31,6 @@ def process_pdf(pdf_path):
     return docs
 
 ## Create or Load FAISS Vector Store
-# def get_vector_store(docs=None, recreate=False):
-#     if not os.path.exists(VECTOR_STORE_PATH) or recreate:
-#         if docs is None:
-#             docs = process_pdf(DEFAULT_RESUME_PATH)
-#         vectorstore_faiss = FAISS.from_documents(docs, bedrock_embeddings)
-#         vectorstore_faiss.save_local(VECTOR_STORE_PATH)
-#     return FAISS.load_local(VECTOR_STORE_PATH, bedrock_embeddings, allow_dangerous_deserialization=True)
-
 def get_vector_store(docs=None, recreate=False):
     if not os.path.exists(VECTOR_STORE_PATH) or recreate:
         if docs is None:
@@ -45,7 +38,7 @@ def get_vector_store(docs=None, recreate=False):
         
         # Error handling for empty documents
         if not docs:
-            st.error("No documents found. Please upload a valid PDF.")
+            #st.error("No documents found. Please upload a valid PDF.")
             return None
 
         try:
@@ -56,7 +49,6 @@ def get_vector_store(docs=None, recreate=False):
             return None
 
     return FAISS.load_local(VECTOR_STORE_PATH, bedrock_embeddings, allow_dangerous_deserialization=True)
-
 
 ## Load Llama3 Model
 def get_llama3_llm():
@@ -211,6 +203,21 @@ def apply_custom_css():
     </style>
     """, unsafe_allow_html=True)
 
+## Display PDF in sidebar
+def display_pdf(file_bytes, file_name):
+    base64_pdf = base64.b64encode(file_bytes).decode("utf-8")
+    pdf_display = f"""
+    <iframe 
+        src="data:application/pdf;base64,{base64_pdf}" 
+        width="100%" 
+        height="600px" 
+        type="application/pdf"
+    >
+    </iframe>
+    """
+    st.markdown(f"### Preview of {file_name}")
+    st.markdown(pdf_display, unsafe_allow_html=True)
+
 ## Streamlit App with Enhanced UI
 def main():
     st.set_page_config("AI Document Chat", layout="wide")  
@@ -243,6 +250,7 @@ def main():
             st.success("Uploaded successfully! Using this for Q&A.")
             docs = process_pdf(temp_path)
             get_vector_store(docs, recreate=True)
+            display_pdf(uploaded_file.getbuffer(), uploaded_file.name)
         else:
             st.markdown("<p style='color: #BBBBBB;'> If no document is uploaded, the web app responds from Dushyant's cover letter.</p>", unsafe_allow_html=True)
             get_vector_store()
@@ -261,24 +269,33 @@ def main():
     ## User Query with improved UI and Enter button
     st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
     
-    # Create a form for the text input and submit button
-    with st.form("chat_form", clear_on_submit=False):
-        st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
-        user_question = st.text_area("💬 Ask any question:", 
-                                   height=72,
-                                    placeholder="Type your question here.... Ex. What skills are mentioned?",
-                                  key="user_question_input") # Add a unique key here
-        
-        # Add a custom submit button
-        submit_button = st.form_submit_button("Enter", use_container_width=False)
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        if submit_button and user_question:
+    # Initialize chat history
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Display chat messages from history on app rerun
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    # Accept user input
+    if prompt := st.chat_input("💬 Ask any question:"):
+        # Add user message to chat history
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        # Display user message in chat message container
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        # Display assistant response in chat message container
+        with st.chat_message("assistant"):
             with st.spinner("🧠 Thinking..."):
                 faiss_index = get_vector_store()
                 llm = get_llama3_llm()
-                response = get_response_llm(llm, faiss_index, user_question)
-                st.markdown(f"<div style='background-color: #2D2D2D; padding: 15px; border-radius: 10px; border-left: 3px solid #4CAF50;'>{response}</div>", unsafe_allow_html=True)
+                response = get_response_llm(llm, faiss_index, prompt)
+                st.markdown(response)
+        
+        # Add assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": response})
     
     st.markdown("</div>", unsafe_allow_html=True)
 

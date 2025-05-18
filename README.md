@@ -1,10 +1,6 @@
 # Streamlit Web app Docker Image (Linux) - Resume Ineteraction
 
-
-
 When starting Docker, mount the EC2 folder inside the container:
-
-
 
 docker build -t dushyant1334/titanembedpdf2text:latest .
 

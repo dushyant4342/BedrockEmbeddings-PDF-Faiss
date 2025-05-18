@@ -19,7 +19,7 @@ bedrock = boto3.client(service_name="bedrock-runtime", region_name="ap-south-1")
 bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0", client=bedrock)
 
 # Default resume path
-DEFAULT_RESUME_PATH = "data/DushyantResume.pdf"
+DEFAULT_RESUME_PATH = "data/DushyantCoverLetter.pdf"
 VECTOR_STORE_PATH = "faiss_index"
 
 ## Load PDF, Split Text, and Generate Embeddings
